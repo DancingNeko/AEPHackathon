@@ -27,16 +27,19 @@ const readFile = () => {
         //for (i = 0; i < expectedPower.length; i++) {
         //    offset.push((expectedPower[i] - actualPower[i])/ expectedPower[i]);
         //}
-    xDatas.push(rotationSpeed)
-    yDatas.push(actualPower)
+    xDatas.push(rotationSpeed);
+    yDatas.push(actualPower);
     document.getElementById("out").innerHTML = "done";
-  }
-    reader.readAsBinaryString(fileInput.files[0]);
-    console.log(xDatas)
+    console.log(xDatas);
     plotData(xDatas,yDatas);
+  }
+  
+    reader.readAsBinaryString(fileInput.files[0]);
   // start reading the file. When it is done, calls the onload event defined above.
 }
 fileInput.addEventListener('change', readFile)
+
+/**/ 
 
 
 function str2matrix(dataStr){
