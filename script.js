@@ -1,7 +1,7 @@
 //let canvas = document.getElementById("draw");
 
 
-var TurbineData = Papa.parse("addresses.csv", {
+var TurbineData = Papa.parse("Pablo's Import - Menu.csv", {
 	download: false,
 	step: function(row) {
 		console.log("Row:", row.data);
@@ -11,18 +11,6 @@ var TurbineData = Papa.parse("addresses.csv", {
 	}
 });
 
-/**
- * @param a - first parameter
- * @param b - second parameter
- * @returns - nothing ,this is a void method
- * 
- */
-function test(a, b) {
-
-console.log(a + b);
+class Windmill {
+    
 }
-test(1,2);
-
-
-
-
