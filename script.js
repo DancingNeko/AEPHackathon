@@ -4,16 +4,14 @@
 
 const fileInput = document.getElementById('csv')
 const readFile = () => {
-  const reader = new FileReader()
+  const reader = new FileReader();
+  var xDatas = [];
+  var yDatas = [];
   reader.onload = () => {
-    var xDatas = [];
-    var yDatas = [];
-    alert(fileInput.files.length)
-    for(i = 0; i < fileInput.files.length; i++){
-        reader.readAsBinaryString(fileInput.files[i]);
-        dataStr = reader.result;
-        mat = str2matrix(dataStr[i]);
-        flipped = mat[0].map((_, colIndex) => mat.map(row => row[colIndex]));
+    alert(0);
+    dataStr = reader.result;
+    mat = str2matrix(dataStr);
+    flipped = mat[0].map((_, colIndex) => mat.map(row => row[colIndex]));
         var windSpeed = flipped[127].slice(2).map(Number);
         var windDirection = flipped[124].slice(2).map(Number);
         var expectedPower = flipped[29].slice(2).map(Number);
@@ -29,13 +27,13 @@ const readFile = () => {
         //for (i = 0; i < expectedPower.length; i++) {
         //    offset.push((expectedPower[i] - actualPower[i])/ expectedPower[i]);
         //}
-        xDatas.push(rotationSpeed);
-        yDatas.push(actualPower);
-    }
-    plotData(xDatas,yDatas);
-    
+    xDatas.push(rotationSpeed)
+    yDatas.push(actualPower)
     document.getElementById("out").innerHTML = "done";
   }
+    reader.readAsBinaryString(fileInput.files[0]);
+    console.log(xDatas)
+    plotData(xDatas,yDatas);
   // start reading the file. When it is done, calls the onload event defined above.
 }
 fileInput.addEventListener('change', readFile)
