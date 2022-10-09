@@ -2,15 +2,21 @@
 <html>
     <head>
         <link rel="stylesheet" href="style.css"/>
+        <title>Amazing AEP Thing!</title>
     </head>
     <body>
         <div>
             <p>Select local CSV File:</p>
             <input id="csv" type="file" accept=".csv" multiple="multiple"/>
-        </div>
-        <pre id="out"><p>File contents will appear here</p></pre>
+          </div>
         <div id="scatter"></div>
-        <canvas id="draw" width="1600" height="800">
+
+        <div id="selections">
+            <select id="xSelect"></select>
+            <select id="ySelect" multiple="true"></select>
+        </div>
+        <button onclick="graphGen();">Generate Graph</button>
+    
         </canvas>
 
         <!--JavaScript-->
