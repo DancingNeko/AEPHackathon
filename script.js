@@ -1,43 +1,28 @@
 //let canvas = document.getElementById("draw");
 
 
-const fileInput = document.getElementById('csv')
+const fileInput = document.getElementById('csv');
+const xSelect = document.getElementById("xSelect");
+const ySelect = document.getElementById("ySelect");
+let varNames = [];
 let xDatas = [];
 let yDatas = [];
 let allLoaded = false
-
+let count = 0
+let headerRows = 1
 
 class Columns {
-    constructor() {
-        this.indeces = {
-            "windSpeed":127,
-            "windDirection":124,
-            "expectedPower":29,
-            "actualPower":69,
-            "expectedPower":29,
-            "ambientAirTemp":88,
-            "generatorInboardTemp":89,
-            "generatorOutboardTemp":90,
-            "rotationSpeed":59
-        }
-        this.valueSet = {
-            "windSpeed":[],
-            "windDirection":[],
-            "actualPower":[],
-            "expectedPower":[],
-            "ambientAirTemp":[],
-            "generatorInboardTemp":[],
-            "generatorOutboardTemp":[],
-            "rotationSpeed":[]
-        }
-        this.varNames = ["windSpeed","windDirection","expectedPower","actualPower",
-            "expectedPower","ambientAirTemp","generatorInboardTemp",
-            "generatorOutboardTemp","rotationSpeed"];
+    constructor(varNames) {
+        this.varNames = varNames;
+        this.valueSet = {};
+        varNames.forEach(varName => {
+            this.valueSet[varName] = [];
+        });
     }
     addValues(values) {
-        this.varNames.forEach(varName => {
-            this.valueSet[varName].push(values[this.indeces[varName]].slice(2).map(Number));
-        });
+        for (i = 0; i < this.varNames.length; i++) {
+            this.valueSet[varNames[i]].push(values[i].slice(headerRows + 1).map(Number));
+        }
     }
     getValueSet() {
         return this.valueSet;
@@ -47,61 +32,74 @@ class Columns {
     }
 }
 
+let headerInput = document.getElementById('header');
+headerInput.addEventListener('onchange', () => {headerRows = headerInput.value});
 
-const column = new Columns();
-
-makeSelection();
-function makeSelection() {
-    alert(0);
-
-    const xSelect = document.getElementById("xSelect");
-    const ySelect = document.getElementById("ySelect");
-
-    let options = column.getVarNames();
-    
-    for (i=0; i < options.length; i++) {
-        let xNode = document.createElement('option');
-        xNode.setAttribute('value', options[i]);
-        xNode.innerHTML = options[i];
-
-        let yNode = document.createElement('option');
-        yNode.setAttribute('value', options[i]);
-        yNode.innerHTML = options[i];
-        
-        xSelect.appendChild(xNode);
-        ySelect.appendChild(yNode);
-    }
-}
-
-const readFile = (file) => {
+var column;
+const readFile = () => {
+    file = fileInput.files[0];
     const reader = new FileReader();
-  reader.onload = () => {
-    dataStr = reader.result;
-    mat = str2matrix(dataStr);
-    flipped = mat[0].map((_, colIndex) => mat.map(row => row[colIndex]));
-    column.addValues(flipped);
-  }
+    reader.onload = () => {
+        varNames = []
+        dataStr = reader.result;
+        dataMatrix = str2matrix(dataStr);
+        flipped = dataMatrix[0].map((_, colIndex) => dataMatrix.map(row => row[colIndex]));
+        flipped.forEach(column => {
+            varNames.push(column[0]);
+        });
+            
+        column = new Columns(varNames);
+
+        let options = column.getVarNames();
+
+        removeOptions(xSelect)
+        removeOptions(ySelect)
+        
+        for (i=0; i < options.length; i++) {
+            let xNode = document.createElement('option');
+            xNode.setAttribute('value', options[i]);
+            xNode.innerHTML = options[i];
+
+            let yNode = document.createElement('option');
+            yNode.setAttribute('value', options[i]);
+            yNode.innerHTML = options[i];
+            xSelect.appendChild(xNode);
+            ySelect.appendChild(yNode);
+        }
+        console.log(flipped)
+        column.addValues(flipped);
+
+        const selections = document.getElementById("selections");
+        selections.style.display = "block";
+    }
   reader.readAsBinaryString(file);
 }
-fileInput.addEventListener('change', readFiles)
-
-let xSelect = document.getElementById("xSelect");
-let ySelect = document.getElementById("ySelect");
+fileInput.addEventListener('change', readFile);
 
 
+function removeOptions(selectElement) {
+    var i, L = selectElement.options.length - 1;
+    for(i = L; i >= 0; i--) {
+       selectElement.remove(i);
+    }
+ }
 
+ 
 /**
  * 
- * @param {*} x not telling
- * @param {*} y idk
+ * @param {*} x not telling (i like ice cream)
+ * @param {*} y idk (REEEEE)
  */
 function showGraph(x,y) {
-    xDatas,yDatas;
+    xDatas = [];
+    yDatas = [];
 
-        xDatas = column.getValueSet()[x];
-        // yDatas = column.getValueSet()[y];
-        y.forEach((yVal) => {yDatas.push(column.getValueSet()[yVal])});
-    plotData(xDatas,yDatas)        
+    xDatas = column.getValueSet()[x];
+    y.forEach((yVal) => {
+        yDatas.push(column.getValueSet()[yVal]);
+
+    });
+    plotData(xDatas,yDatas,y);        
 }
 
 function graphGen() {
@@ -116,22 +114,7 @@ function graphGen() {
             allSelected.push(option);
         }
     });*/
-    console.log(allSelected)
     showGraph(xSelect.value, allSelected);
-}
-
-
-function readFiles() {
-    xDatas = [];
-    yDatas = [];
-
-    for (i=0; i < fileInput.files.length; i++) {
-        
-        readFile(fileInput.files[i]);
-        if(i == fileInput.files.length - 1)
-            allLoaded = true;
-    }
-
 }
 
 
@@ -144,13 +127,14 @@ function str2matrix(dataStr){
     return dataArr; //[0].map((_, colIndex) => array.map(row => row[colIndex]));
 }
 
-function plotData(xData, yData) {
+function plotData(xData, yData, names) {
     var data = [];
-
-    for (i = 0; i < xData.length; i++) {
+    
+    for (i = 0; i < yData.length; i++) {
         data.push({
-            x: xData[i],
-            y: yData[i],
+            x: xData[0],
+            y: yData[0][i],
+            name: names[i],
             opacity: 0.5,
             mode: "markers",
             type: "scatter"
